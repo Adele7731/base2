@@ -34,4 +34,4 @@ print(f"Transaction sent: {tx_hash.hex()}")
 
 # Wait for receipt
 receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-print(f"Transaction confirmed in block {receipt['blockNumber']}")
+
