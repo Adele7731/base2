@@ -1,0 +1,37 @@
+from web3 import Web3
+from web3.middleware import geth_poa_middleware
+
+# Connect to Sepolia via Infura
+w3 = Web3(Web3.HTTPProvider("https://sepolia.infura.io/v3/YOUR_INFURA_ID"))
+w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+
+if not w3.is_connected():
+    raise ConnectionError("Network connection failed!")
+
+# Replace with your own credentials
+PRIVATE_KEY = "0xYOUR_PRIVATE_KEY"
+SENDER = "0xYourWalletAddress"
+CONTRACT_ADDRESS = "0xDeployedContractAddress"
+
+# ABI for a simple set(uint256) function
+ABI = [{"inputs": [{"name": "_value", "type": "uint256"}], "name": "set", "outputs": [], "stateMutability": "nonpayable", "type": "function"}]
+
+contract = w3.eth.contract(address=CONTRACT_ADDRESS, abi=ABI)
+
+# Build the transaction
+nonce = w3.eth.get_transaction_count(SENDER)
+tx = contract.functions.set(123).build_transaction({
+    "from": SENDER,
+    "nonce": nonce,
+    "gas": 200000,
+    "gasPrice": w3.eth.gas_price,
+})
+
+# Sign and send
+signed_tx = w3.eth.account.sign_transaction(tx, PRIVATE_KEY)
+tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+print(f"Transaction sent: {tx_hash.hex()}")
+
+# Wait for receipt
+receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+print(f"Transaction confirmed in block {receipt['blockNumber']}")
