@@ -34,4 +34,4 @@ print(f"Transaction sent: {tx_hash.hex()}")
 
 # Wait for receip
 receipt = w3.eth.wait_for_transaction_r
-
+\
